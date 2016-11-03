@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>hello phaser!</title>
+        <script src="phaser/build/phaser.min.js"></script>
+        <style>
+        	canvas{
+        		margin:0 auto;
+        	}
+        </style>
+    </head>
+    <body>
+
+    <script type="text/javascript">
+    
+    /* global Phaser */
+
+	//A function that runs when our browser has finished loading this document
+    window.onload = function() {
+    	
+    	//This creates the game
+        var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+        
+        //Declare our paddle as a global variable
+        var paddle;
+        var ball;
+
+		//This function is used to preload our graphics / textures / sounds / level maps etc.
+        function preload () {
+
+			//Load our paddle
+            game.load.image('paddle', 'assets/img/breakout-paddle.png');
+            
+            //Load our ball
+            game.load.image('ball', 'assets/img/breakout-ball.png');
+
+        }
+
+		//This function builds our game world
+        function create () {
+
+			//Start physics engine - we have a choice of three, ARCADE is best for all mobile browsers (simple + lightweight)
+			game.physics.startSystem(Phaser.Physics.ARCADE);
+			game.world.setBounds(0, 0, 800, 600);
+
+			//Add our paddle, fix the y position to 550 - a choice made by trial and error
+            paddle = game.add.sprite(game.world.centerX, 550, 'paddle');
+            
+            //Set the anchor position to the middle of the paddle so that our paddle coordinates relate to the middle of it
+            paddle.anchor.setTo(0.5, 0.5);
+            
+            //Add our ball
+            ball = game.add.sprite(game.world.centerX, game.world.centerY, 'ball');
+            ball.anchor.setTo(0.5, 0.5);
+            
+            
+            game.physics.enable(ball, Phaser.Physics.ARCADE);
+            game.physics.enable(paddle, Phaser.Physics.ARCADE);
+			
+			ball.body.collideWorldBounds = true;
+			ball.body.bounce.set(1);
+			
+			ball.body.velocity.x = 150;
+			ball.body.velocity.y = 150;
+			
+			paddle.body.immovable = true;
+        }
+        
+        //This function runs every frame and we can use it to update our game
+        function update () {
+        	
+        	//Make the paddle position equal to the mouse position on the x-axis
+        	paddle.x = game.input.x;
+        	
+        	//Snap the paddle to the sides of the game so it does not go off the sides
+        	if(paddle.x - paddle.width/2 < 0)paddle.x = paddle.width/2;
+        	if(paddle.x + paddle.width/2 > game.width)paddle.x = game.width - paddle.width/2;
+        	
+        	game.physics.arcade.collide(ball, paddle);
+        	
+        }
+
+    };
+
+    </script>
+
+    </body>
+</html>
